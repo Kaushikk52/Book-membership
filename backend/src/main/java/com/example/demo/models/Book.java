@@ -1,0 +1,53 @@
+package com.example.demo.models;
+
+import com.example.demo.constants.BookAvailability;
+import com.example.demo.helpers.StringListConverter;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
+
+import java.util.List;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Setter
+@Getter
+@Builder
+@Entity
+public class Book extends Auditable{
+
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false, updatable = false, length = 36)
+    private String id;
+
+    @Column(name = "name",nullable = false,length = 30)
+    private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private User author;
+
+    @Column(name = "images", columnDefinition = "json")
+    @Convert(converter = StringListConverter.class)
+    private List<String> categories;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 10)
+    private BookAvailability status;
+
+    @ManyToOne
+    @JoinColumn(name = "taken_by")
+    private User takenBy;
+
+    private boolean isDeleted;
+
+    @PrePersist
+    private void prePersist() {
+        if (this.status == null) {
+            this.status = BookAvailability.AVAILABLE;
+        }
+    }
+
+}
