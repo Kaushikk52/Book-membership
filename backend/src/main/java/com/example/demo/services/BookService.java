@@ -18,16 +18,16 @@ public class BookService {
     private final UserService userServ;
     private final UserRepo userRepo;
 
+    public Book addBook(Book book){
+        return bookRepo.save(book);
+    }
+
     public List<Book> getAllBooks(){
         List<Book> bookList = bookRepo.findByIsDeletedFalse();
         if(bookList.isEmpty()){
             throw new NotFoundException("No books found in the repository");
         }
         return bookList;
-    }
-
-    public Book addBook(Book book){
-        return bookRepo.save(book);
     }
 
     public Book getBookById(String id){
@@ -46,7 +46,7 @@ public class BookService {
          return bookRepo.save(book);
     }
 
-    public Book borrowBook(String bookId,String userId, int days){
+    public Book borrowBook(String bookId,String userId){
         Book book = this.getBookById(bookId);
         User user = userServ.getUserById(userId);
 
@@ -89,6 +89,12 @@ public class BookService {
             book.setStatus(BookAvailability.AVAILABLE);
         }
         return bookRepo.save(book);
+    }
+
+    public Book deleteBook(String id){
+        Book existingBook = this.getBookById(id);
+        existingBook.setDeleted(true);
+        return bookRepo.save(existingBook);
     }
 
 }
