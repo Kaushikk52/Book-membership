@@ -25,11 +25,13 @@ public class Book extends Auditable{
     @Column(name = "name",nullable = false,length = 30)
     private String name;
 
+    private int stock;
+
     @ManyToOne
     @JoinColumn(name = "author_id")
     private User author;
 
-    @Column(name = "images", columnDefinition = "json")
+    @Column(name = "categories", columnDefinition = "json")
     @Convert(converter = StringListConverter.class)
     private List<String> categories;
 
@@ -37,9 +39,13 @@ public class Book extends Auditable{
     @Column(name = "status", nullable = false, length = 10)
     private BookAvailability status;
 
-    @ManyToOne
-    @JoinColumn(name = "taken_by")
-    private User takenBy;
+    @ManyToMany
+    @JoinTable(
+            name = "book_borrowers",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> takenBy;
 
     private boolean isDeleted;
 
