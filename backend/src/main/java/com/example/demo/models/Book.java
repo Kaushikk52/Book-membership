@@ -27,9 +27,7 @@ public class Book extends Auditable{
 
     private int stock;
 
-    @ManyToOne
-    @JoinColumn(name = "author_id")
-    private User author;
+    private String author;
 
     @Column(name = "categories", columnDefinition = "json")
     @Convert(converter = StringListConverter.class)

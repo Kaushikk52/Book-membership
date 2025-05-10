@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.dto.MembershipRequest;
 import com.example.demo.models.User;
 import com.example.demo.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -97,10 +98,10 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "/{id}/membership")
-    public ResponseEntity<Map<String,Object>> addMembership(@PathVariable String id, @RequestBody int months){
+    @PostMapping(value = "/membership")
+    public ResponseEntity<Map<String,Object>> addMembership(@RequestBody MembershipRequest request){
         Map<String,Object> response = new HashMap<>();
-        User user = userServ.setMembership(id,months);
+        User user = userServ.setMembership(request.getUserId(), request.getMonths());
         log.info("✔ Membership added");
         response.put("message","Membership added");
         response.put("user",user);
