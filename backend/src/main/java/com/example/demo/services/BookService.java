@@ -12,8 +12,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -99,6 +99,42 @@ public class BookService {
             book.setStatus(BookAvailability.AVAILABLE);
         }
         return bookRepo.save(book);
+    }
+
+    public Map<String,Object> getCategoryReports(int limit){
+        List<Book> allBooks = bookRepo.findAllWithUsers();
+
+        Map<String, Set<String>> categoryToUsersMap = new HashMap<>();
+
+        for (Book book : allBooks) {
+            List<String> categories = book.getCategories();
+            List<User> users = book.getTakenBy();
+
+            for (User user : users) {
+                for (String category : categories) {
+                    categoryToUsersMap
+                            .computeIfAbsent(category, k -> new HashSet<>())
+                            .add(user.getId());
+                }
+            }
+        }
+
+        // Now prepare result: category -> number of unique users
+        Map<String, Integer> sortedTopCategories = categoryToUsersMap.entrySet().stream()
+                .sorted((e1, e2) -> Integer.compare(e2.getValue().size(), e1.getValue().size()))
+                .limit(limit)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> e.getValue().size(),
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new
+                ));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("reports", sortedTopCategories);
+        response.put("message", "Top " + limit + " book categories by unique borrowers");
+
+        return response;
     }
 
     public Book deleteBook(String id){

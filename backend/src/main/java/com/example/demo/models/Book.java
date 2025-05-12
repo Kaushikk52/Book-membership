@@ -2,6 +2,7 @@ package com.example.demo.models;
 
 import com.example.demo.constants.BookAvailability;
 import com.example.demo.helpers.StringListConverter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -37,6 +38,7 @@ public class Book extends Auditable{
     @Column(name = "status", nullable = false, length = 10)
     private BookAvailability status;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "book_borrowers",

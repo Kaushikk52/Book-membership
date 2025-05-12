@@ -1,7 +1,9 @@
 package com.example.demo.controllers;
 
 import com.example.demo.models.Book;
+import com.example.demo.models.User;
 import com.example.demo.services.BookService;
+import com.example.demo.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,9 +21,10 @@ import java.util.Map;
 @RequestMapping(value = "/v1/api/book")
 public class BookController {
     private final BookService bookServ;
+    private final UserService userServ;
 
-        @PostMapping(value = "/add")
-        public ResponseEntity<Map<String,Object>> addBook(@RequestBody Book book){
+    @PostMapping(value = "/add")
+    public ResponseEntity<Map<String,Object>> addBook(@RequestBody Book book){
             Map<String,Object> response = new HashMap<>();
             Book addedBook = bookServ.addBook(book);
             log.info("✔ Book added");
@@ -65,6 +68,39 @@ public class BookController {
         response.put("books",filteredBooks);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @PostMapping(value = "/borrow/{id}")
+    public ResponseEntity<Map<String,Object>> borrowBook(@PathVariable String id,Principal principal){
+            Map<String,Object> response = new HashMap<>();
+            User currentUser = (User)  userServ.loadUserByUsername(principal.getName());
+            Book borrowedBook = bookServ.borrowBook(id,currentUser.getId());
+            log.info("✔ Book borrowed");
+            response.put("message","Book borrowed");
+            response.put("book",borrowedBook);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping(value = "/return/{id}")
+    public ResponseEntity<Map<String,Object>> returnBook(@PathVariable String id,Principal principal){
+        Map<String,Object> response = new HashMap<>();
+        User currentUser = (User)  userServ.loadUserByUsername(principal.getName());
+        Book returnedBook = bookServ.returnBook(id, currentUser.getId());
+        log.info("✔ Book returned");
+        response.put("message","Book returned");
+        response.put("book",returnedBook);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping(value = "/reports")
+    public ResponseEntity<Map<String,Object>> getCategoryReport(@RequestParam(required = false) int limit){
+        Map<String,Object> response = new HashMap<>();
+        Map<String,Object> reports = bookServ.getCategoryReports(limit);
+        log.info("✔ Book reports retrieved");
+        response.put("message","Book reports retrieved");
+        response.put("reports",reports);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 
     @PostMapping(value = "/delete/{id}")
     public ResponseEntity<Map<String,Object>> removeBook(@PathVariable String id){

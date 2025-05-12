@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.exceptions.NotFoundException;
+import com.example.demo.models.Book;
 import com.example.demo.models.User;
 import com.example.demo.repositories.UserRepo;
 import com.example.demo.security.JwtHelper;
@@ -14,7 +15,10 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +45,8 @@ public class UserService implements UserDetailsService {
     }
 
     public User getUserById(String id){
-        return userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        return user;
     }
 
     public User getCurrentUserRole(Principal principal){
@@ -87,6 +92,20 @@ public class UserService implements UserDetailsService {
         String token = this.helper.generateToken(user);
         user.setToken(token);
         return userRepo.save(user);
+    }
+
+    public Map<String,Object> getUserBookActivity(String userId){
+        User user = this.getUserById(userId);
+        List<Book> allBooks = user.getBorrowed();
+        if(allBooks.isEmpty()){
+            return new HashMap<>();
+        }
+        Book currentBook = allBooks.get(0);
+        List<Book> previousBooks = allBooks.stream().skip(1).collect(Collectors.toList());
+        Map<String,Object> activity = new HashMap<>();
+        activity.put("current",currentBook);
+        activity.put("previous",previousBooks);
+        return activity;
     }
 
     public void deleteUser(Principal principal){

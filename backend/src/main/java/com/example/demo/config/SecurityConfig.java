@@ -46,7 +46,7 @@ public class SecurityConfig {
 
                         // Book endpoints
                         .requestMatchers(HttpMethod.POST,"/v1/api/book/add",
-                                "/v1/api/book/delete/**").authenticated()
+                                "/v1/api/book/delete/**","/v1/api/book/borrow/**","/v1/api/book/return/**").authenticated()
                         .requestMatchers(HttpMethod.GET,"/v1/api/book/**").permitAll()
                 )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(point))

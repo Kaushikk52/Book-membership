@@ -1,6 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dto.MembershipRequest;
+import com.example.demo.models.Book;
 import com.example.demo.models.User;
 import com.example.demo.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,7 @@ public class UserController {
                         .firstName(user.getFirstName())
                         .lastName(user.getLastName())
                         .email(user.getEmail())
+                        .borrowed(user.getBorrowed())
                         .role(user.getRole())
                         .build())
                 .collect(Collectors.toList());
@@ -72,6 +74,7 @@ public class UserController {
                     .firstName(currentUser.getFirstName())
                     .lastName(currentUser.getLastName())
                     .email(currentUser.getEmail())
+                    .borrowed(currentUser.getBorrowed())
                     .role(currentUser.getRole())
                     .build();
 
@@ -105,6 +108,16 @@ public class UserController {
         log.info("✔ Membership added");
         response.put("message","Membership added");
         response.put("user",user);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping(value = "/activity/{id}")
+    public ResponseEntity<Map<String,Object>> getUserActivity(@PathVariable String id){
+        Map<String,Object> response = new HashMap<>();
+        Map<String, Object> activity = userServ.getUserBookActivity(id);
+        log.info("✔ Retrived User activity");
+        response.put("message","Retrived User activity");
+        response.put("activity",activity);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

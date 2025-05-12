@@ -47,7 +47,7 @@ public class User extends Auditable implements UserDetails {
     @OneToMany(mappedBy = "author")
     private List<Book> publishment;
 
-    @OneToMany(mappedBy = "takenBy")
+    @ManyToMany(mappedBy = "takenBy")
     private List<Book> borrowed;
 
     private LocalDate membershipStart;
