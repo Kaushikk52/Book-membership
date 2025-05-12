@@ -45,7 +45,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,"/v1/api/user/membership","/v1/api/user/delete").authenticated()
 
                         // Book endpoints
-                        .requestMatchers(HttpMethod.POST,"/v1/api/book/add").authenticated()
+                        .requestMatchers(HttpMethod.POST,"/v1/api/book/add",
+                                "/v1/api/book/delete/**").authenticated()
+                        .requestMatchers(HttpMethod.GET,"/v1/api/book/**").permitAll()
                 )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(point))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

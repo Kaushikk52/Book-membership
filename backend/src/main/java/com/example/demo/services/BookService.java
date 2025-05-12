@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.Specs.BooksSpecification;
 import com.example.demo.constants.BookAvailability;
 import com.example.demo.exceptions.NotFoundException;
 import com.example.demo.models.Book;
@@ -7,10 +8,12 @@ import com.example.demo.models.User;
 import com.example.demo.repositories.BookRepo;
 import com.example.demo.repositories.UserRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
@@ -36,6 +39,12 @@ public class BookService {
                .orElseThrow(() -> new NotFoundException("Book not found: " + id));
         Book updatedBook = updateStatus(book);
         return updatedBook;
+    }
+
+    public List<Book> getFilteredBooks(Map<String,Object> filters){
+        Specification<Book> spec = BooksSpecification.findByCriteria(filters);
+        List<Book> books = bookRepo.findAll(spec);
+        return books;
     }
 
     public Book updateStatus(Book book){
@@ -95,6 +104,7 @@ public class BookService {
     public Book deleteBook(String id){
         Book existingBook = this.getBookById(id);
         existingBook.setDeleted(true);
+        existingBook.setStatus(BookAvailability.NOT_AVAILABLE);
         return bookRepo.save(existingBook);
     }
 
